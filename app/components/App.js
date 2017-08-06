@@ -1,32 +1,49 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { Video } from './Video';
-import { Menu } from './Menu';
+import fire from '../fire.js';
 
-const VIDEOS = {
-  fast: 'https://s3.amazonaws.com/codecademy-content/courses/React/react_video-fast.mp4',
-  slow: 'https://s3.amazonaws.com/codecademy-content/courses/React/react_video-slow.mp4',
-  cute: 'https://s3.amazonaws.com/codecademy-content/courses/React/react_video-cute.mp4',
-  eek: 'https://s3.amazonaws.com/codecademy-content/courses/React/react_video-eek.mp4'
-};
+import TextInput from './TextInput.js';
+import TextDisplay from './TextDisplay.js';
 
 export class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { src: VIDEOS.slow };
-		this.chooseVideo = this.chooseVideo.bind(this);
+    this.state = { input: '', messages: [] };
+    this.addMessage = this.addMessage.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
-
-  chooseVideo(newVideo) {
-    this.setState({src: VIDEOS[newVideo]});
+  handleChange(e) {
+    this.setState({input: e.target.value});
   }
-
+  addMessage(e) {
+    e.preventDefault(); // <- prevent form submit from reloading the page
+    /* Send the message to Firebase */
+    fire.database().ref('messages').push( this.state.input );
+    this.setState({input: ''});
+  }
+  componentDidMount() {
+    /* Create reference to messages in Firebase Database */
+    let messagesRef = fire.database().ref('messages').orderByKey().limitToLast(10);
+    messagesRef.on('child_added', snap => {
+      /* Update React state when message is added at Firebase Database */
+      let message = { text: snap.val(), id: snap.key };
+      this.setState({ messages: [message].concat(this.state.messages) });
+    })
+  }
   render() {
     return (
       <div>
-        <Menu chooseVideo = {this.chooseVideo}/>
-        <Video src={this.state.src}/>
+        <TextInput
+          input={this.state.input}
+          onChange={this.handleChange}
+          onSubmit={this.addMessage}
+        />
+        <TextDisplay messages={this.state.messages} />
       </div>
     );
   }
+  componentWillUnmount() {
+    fire.database().ref().off();
+  }
 }
+
+export default App;
