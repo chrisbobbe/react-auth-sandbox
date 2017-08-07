@@ -10,4 +10,8 @@ export const TextDisplay = (props) => {
   );
 }
 
+TextDisplay.propTypes = {
+  messages: React.PropTypes.array
+}
+
 export default TextDisplay;

@@ -9,4 +9,10 @@ export const TextInput = (props) => {
   );
 }
 
+TextInput.propTypes = {
+  input: React.PropTypes.string.isRequired,
+  onChange: React.PropTypes.func,
+  onSubmit: React.PropTypes.func
+}
+
 export default TextInput;

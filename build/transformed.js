@@ -36856,19 +36856,6 @@ var App = exports.App = function (_React$Component) {
   }
 
   _createClass(App, [{
-    key: 'componentWillMount',
-    value: function componentWillMount() {
-      var _this2 = this;
-
-      /* Create reference to messages in Firebase Database */
-      var messagesRef = _fire2.default.database().ref('messages').orderByKey().limitToLast(100);
-      messagesRef.on('child_added', function (snap) {
-        /* Update React state when message is added at Firebase Database */
-        var message = { text: snapshot.val(), id: snapshot.key };
-        _this2.setState({ messages: [message].concat(_this2.state.messages) });
-      });
-    }
-  }, {
     key: 'handleChange',
     value: function handleChange(e) {
       this.setState({ input: e.target.value });
@@ -36880,6 +36867,19 @@ var App = exports.App = function (_React$Component) {
       /* Send the message to Firebase */
       _fire2.default.database().ref('messages').push(this.state.input);
       this.setState({ input: '' });
+    }
+  }, {
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      var _this2 = this;
+
+      /* Create reference to messages in Firebase Database */
+      var messagesRef = _fire2.default.database().ref('messages').orderByKey().limitToLast(10);
+      messagesRef.on('child_added', function (snap) {
+        /* Update React state when message is added at Firebase Database */
+        var message = { text: snap.val(), id: snap.key };
+        _this2.setState({ messages: [message].concat(_this2.state.messages) });
+      });
     }
   }, {
     key: 'render',
@@ -36894,6 +36894,11 @@ var App = exports.App = function (_React$Component) {
         }),
         _react2.default.createElement(_TextDisplay2.default, { messages: this.state.messages })
       );
+    }
+  }, {
+    key: 'componentWillUnmount',
+    value: function componentWillUnmount() {
+      _fire2.default.database().ref().off();
     }
   }]);
 
@@ -48972,6 +48977,12 @@ var TextInput = exports.TextInput = function TextInput(props) {
   );
 };
 
+TextInput.propTypes = {
+  input: _react2.default.PropTypes.string.isRequired,
+  onChange: _react2.default.PropTypes.func,
+  onSubmit: _react2.default.PropTypes.func
+};
+
 exports.default = TextInput;
 
 /***/ }),
@@ -49005,6 +49016,10 @@ var TextDisplay = exports.TextDisplay = function TextDisplay(props) {
       );
     })
   );
+};
+
+TextDisplay.propTypes = {
+  messages: _react2.default.PropTypes.array
 };
 
 exports.default = TextDisplay;
