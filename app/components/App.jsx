@@ -1,16 +1,21 @@
-import React from 'react';
+import React, {Component} from 'react';
 import fire from '../fire.js';
 
-import TextInput from './TextInput.js';
-import TextDisplay from './TextDisplay.js';
+import TextInput from './TextInput.jsx';
+import TextDisplay from './TextDisplay.jsx';
 
-export class App extends React.Component {
+import Card from 'material-ui/Card';
+
+class App extends Component {
   constructor(props) {
     super(props);
     this.state = { input: '', messages: [] };
     this.addMessage = this.addMessage.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
+
+  /* Event handlers */
+
   handleChange(e) {
     this.setState({input: e.target.value});
   }
@@ -20,6 +25,9 @@ export class App extends React.Component {
     fire.database().ref('messages').push( this.state.input );
     this.setState({input: ''});
   }
+
+  /* Lifecycle methods */
+
   componentDidMount() {
     /* Create reference to messages in Firebase Database */
     let messagesRef = fire.database().ref('messages').orderByKey().limitToLast(10);
@@ -31,14 +39,14 @@ export class App extends React.Component {
   }
   render() {
     return (
-      <div>
+      <Card>
         <TextInput
           input={this.state.input}
           onChange={this.handleChange}
           onSubmit={this.addMessage}
         />
         <TextDisplay messages={this.state.messages} />
-      </div>
+      </Card>
     );
   }
   componentWillUnmount() {
