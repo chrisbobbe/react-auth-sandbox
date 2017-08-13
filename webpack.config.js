@@ -1,29 +1,26 @@
-var HTMLWebpackPlugin = require('html-webpack-plugin');
-var HTMLWebpackPluginConfig = new HTMLWebpackPlugin({
-  template: __dirname + '/app/index.html',
-  filename: 'index.html',
-  inject: 'body'
-});
+const path = require('path');
+
 
 module.exports = {
-  entry: __dirname + '/app/index.js',
-  module: {
-    loaders: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        loader: 'babel-loader'
-      },
-      {
-        test: /\.jsx$/,
-        exclude: /node_modules/,
-        loader: 'babel-loader'
-      }
-    ]
-  },
+  // the entry file for the bundle
+  entry: path.join(__dirname, '/client/src/app.jsx'),
+
+  // the bundle file we will get in the result
   output: {
-    filename: 'transformed.js',
-    path: __dirname + '/build'
+    path: path.join(__dirname, '/client/dist/js'),
+    filename: 'app.js',
   },
-  plugins: [HTMLWebpackPluginConfig]
+
+  module: {
+
+    // apply loaders to files that meet given conditions
+    loaders: [{
+      test: /\.(js|jsx)$/,
+      include: path.join(__dirname, '/client/src'),
+      loader: 'babel-loader',
+    }],
+  },
+
+  // start Webpack in a watch mode, so Webpack will rebuild the bundle on changes
+  // watch: true
 };
