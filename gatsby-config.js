@@ -50,5 +50,5 @@ module.exports = {
       },
     },
   ],
-  pathPrefix: `gatsby-blog`
+  pathPrefix: `/gatsby-blog`
 }
