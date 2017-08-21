@@ -17,7 +17,7 @@ class Bio extends React.Component {
       >
         <img
           src={profilePic}
-          alt={`Kyle Mathews`}
+          alt={`Chris Bobbe`}
           style={{
             float: 'left',
             marginRight: rhythm(1 / 4),
@@ -26,10 +26,9 @@ class Bio extends React.Component {
             height: rhythm(2),
           }}
         />
-        Written by <strong>Kyle Mathews</strong> who lives and works in San
-        Francisco building useful things.{' '}
-        <a href="https://twitter.com/kylemathews">
-          You should follow him on Twitter
+      Written by <strong>Chris Bobbe</strong> at the Recurse Center in New York.{' '}
+        <a href="https://twitter.com/TwoEighths">
+          You should follow him on Twitter!
         </a>
       </p>
     )
