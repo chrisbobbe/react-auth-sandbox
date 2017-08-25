@@ -1,77 +1,53 @@
-import React from "react"
-import Link from "gatsby-link"
-import get from "lodash/get"
-import Helmet from "react-helmet"
+import React from 'react';
+import GatsbyLink from 'gatsby-link';
+import Helmet from 'react-helmet';
 
-import Bio from "../components/Bio"
-import { rhythm } from "../utils/typography"
+import Link from '../components/Link';
 
-class BlogIndex extends React.Component {
-  render() {
-    const siteTitle = get(this, "props.data.site.siteMetadata.title")
-    const posts = get(this, "props.data.allMarkdownRemark.edges")
+import '../css/index.css';
 
-    return (
-      <div>
-        <Helmet title={get(this, "props.data.site.siteMetadata.title")} />
-        <Bio />
-        {posts.map(post => {
-          if (post.node.path !== "/404/") {
-            const title = get(post, "node.frontmatter.title") || post.node.path
-            return (
-              <div>
-                <h3
-                  key={post.node.frontmatter.path}
-                  style={{
-                    marginBottom: rhythm(1 / 4),
-                  }}
-                >
-                  <Link
-                    style={{ boxShadow: "none" }}
-                    to={post.node.frontmatter.path}
-                  >
-                    {post.node.frontmatter.title}
-                  </Link>
-                </h3>
-                <small>
-                  {post.node.frontmatter.date}
-                </small>
-                <p dangerouslySetInnerHTML={{ __html: post.node.excerpt }} />
-              </div>
-            )
-          }
+export default function Index({ data }) {
+  const { edges: posts } = data.allMarkdownRemark;
+  return (
+    <div className="blog-posts">
+      {posts
+        .filter(post => post.node.frontmatter.title.length > 0)
+        .map(({ node: post }) => {
+          return (
+            <div className="blog-post-preview" key={post.id}>
+              <h1 className="title">
+                <GatsbyLink to={post.frontmatter.path}>
+                  {post.frontmatter.title}
+                </GatsbyLink>
+              </h1>
+              <h2 className="date">
+                {post.frontmatter.date}
+              </h2>
+              <p>
+                {post.excerpt}
+              </p>
+              <Link to={post.frontmatter.path}>Read more</Link>
+            </div>
+          );
         })}
-      </div>
-    )
-  }
+    </div>
+  );
 }
-
-BlogIndex.propTypes = {
-  route: React.PropTypes.object,
-}
-
-export default BlogIndex
 
 export const pageQuery = graphql`
   query IndexQuery {
-    site {
-      siteMetadata {
-        title
-      }
-    }
-    allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
+    allMarkdownRemark(sort: { order: DESC, fields: [frontmatter___date] }) {
       edges {
         node {
-          excerpt
-          frontmatter {
-            path
-            date(formatString: "DD MMMM, YYYY")
-          }
+          excerpt(pruneLength: 250)
+          id
           frontmatter {
             title
+            date(formatString: "MMMM DD, YYYY")
+            path
           }
         }
       }
     }
   }
-`
+`;
