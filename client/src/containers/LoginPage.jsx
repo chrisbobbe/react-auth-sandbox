@@ -1,33 +1,45 @@
-import React, { Component } from 'react';
+import React, { PropTypes } from 'react';
+import Auth from '../modules/Auth';
 import LoginForm from '../components/LoginForm.jsx';
+import { Redirect } from 'react-router-dom';
 
-class LoginPage extends Component {
 
-  constructor(props) {
-    super(props);
+class LoginPage extends React.Component {
+
+  /**
+   * Class constructor.
+   */
+  constructor(props, context) {
+    super(props, context);
+
+    const storedMessage = localStorage.getItem('successMessage');
+    let successMessage = '';
+
+    if (storedMessage) {
+      successMessage = storedMessage;
+      localStorage.removeItem('successMessage');
+    }
+
+    // set the initial component state
     this.state = {
+      redirectToDashboard: false,
       errors: {},
+      successMessage,
       user: {
         email: '',
         password: ''
       }
     };
+
     this.processForm = this.processForm.bind(this);
     this.changeUser = this.changeUser.bind(this);
   }
 
-// Event Handlers
-
-  changeUser(event) {
-    const field = event.target.name;
-    const user = this.state.user;
-    user[field] = event.target.value;
-
-    this.setState({
-      user
-    });
-  }
-
+  /**
+   * Process the form.
+   *
+   * @param {object} event - the JavaScript event object
+   */
   processForm(event) {
     // prevent default action. in this case, action is the form submission event
     event.preventDefault();
@@ -46,12 +58,17 @@ class LoginPage extends Component {
       if (xhr.status === 200) {
         // success
 
-        // change the component-container state
+        // change the component-container state; plan a redirect
+        console.log("About to set state to redirect. State.re[...]: " + this.state.redirectToDashboard);
         this.setState({
-          errors: {}
+          errors: {},
+          redirectToDashboard: true
         });
+        console.log("Finished setting state to redirect. State.re[...]: " + this.state.redirectToDashboard);
 
-        console.log('The form is valid');
+        // save the token
+        Auth.authenticateUser(xhr.response.token);
+
       } else {
         // failure
 
@@ -67,18 +84,46 @@ class LoginPage extends Component {
     xhr.send(formData);
   }
 
-// Lifecycle Methods
+  /**
+   * Change the user object.
+   *
+   * @param {object} event - the JavaScript event object
+   */
+  changeUser(event) {
+    const field = event.target.name;
+    const user = this.state.user;
+    user[field] = event.target.value;
 
-  render() {
-    return (
-      <LoginForm
-        onChange={this.changeUser}
-        onSubmit={this.processForm}
-        errors={this.state.errors}
-        user={this.state.user}
-      />
-    );
+    this.setState({
+      user
+    });
   }
+
+  /**
+   * Render the component.
+   */
+  render() {
+    const { redirectToDashboard } = this.state;
+    if (redirectToDashboard) {
+      console.log("About to redirect to dashboard. re[...]: " + redirectToDashboard);
+      return (<Redirect to="/dashboard" push />);
+    } else {
+      return (
+        <LoginForm
+          onSubmit={this.processForm}
+          onChange={this.changeUser}
+          errors={this.state.errors}
+          successMessage={this.state.successMessage}
+          user={this.state.user}
+        />
+      );
+    }
+  };
+
 }
+
+LoginPage.contextTypes = {
+  router: PropTypes.object.isRequired
+};
 
 export default LoginPage;
